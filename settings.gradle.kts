@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "YAPP"
 include(":app")
- 
+include(":2048")
