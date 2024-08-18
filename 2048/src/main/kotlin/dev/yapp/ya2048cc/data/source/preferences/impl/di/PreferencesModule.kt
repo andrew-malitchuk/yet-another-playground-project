@@ -10,7 +10,6 @@ import dev.yapp.ya2048cc.data.source.preferences.impl.dao.BarDao
 import dev.yapp.ya2048cc.data.source.preferences.impl.dao.FooDao
 import dev.yapp.ya2048cc.data.source.preferences.impl.dao.HistoryDao
 import dev.yapp.ya2048cc.data.source.preferences.impl.dao.GameDao
-import dev.yapp.ya2048cc.data.source.preferences.impl.dao.HistoryDaoNew
 import dev.yapp.ya2048cc.data.source.preferences.impl.dao.ScoreDao
 import org.koin.dsl.module
 
@@ -21,7 +20,6 @@ val preferencesModule = module {
     single { ScoreDao(get()) }
     single { FooDao(get()) }
     single { BarDao(get()) }
-    single { HistoryDaoNew(get()) }
 
     single<HistoryPreferencesDataSource> {
         HistoryPreferencesDataSourceImpl(
