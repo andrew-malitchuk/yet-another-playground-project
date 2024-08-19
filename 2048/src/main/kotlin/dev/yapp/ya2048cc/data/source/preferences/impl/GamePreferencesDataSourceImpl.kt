@@ -14,17 +14,11 @@ import kotlinx.coroutines.flow.onEach
 class GamePreferencesDataSourceImpl(
     private val gameDao: GameDao,
 ) : GamePreferencesDataSource {
-    override fun subscribeToData(): Flow<GamePreferencesModel> {
-        return gameDao.subscribeToData().onEach {
-        }
-    }
+    override fun subscribeToData(): Flow<GamePreferencesModel> = gameDao.subscribeToData()
 
-    override suspend fun updateData(value: GamePreferencesModel?) {
-        gameDao.updateData(value)
-    }
+    override suspend fun updateData(value: GamePreferencesModel?) = gameDao.updateData(value)
 
-    override suspend fun getData(): GamePreferencesModel? {
-        return gameDao.getData()
-    }
+
+    override suspend fun getData(): GamePreferencesModel? = gameDao.getData()
 
 }

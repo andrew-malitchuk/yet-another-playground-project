@@ -9,16 +9,12 @@ import kotlinx.coroutines.flow.Flow
 class ScorePreferencesDataSourceImpl(
     private val scoreDao: ScoreDao,
 ) : ScorePreferencesDataSource {
-    override fun subscribeToData(): Flow<ScorePreferencesModel> {
-        return scoreDao.subscribeToData()
-    }
+    override fun subscribeToData(): Flow<ScorePreferencesModel> = scoreDao.subscribeToData()
 
-    override suspend fun updateData(value: ScorePreferencesModel?) {
+    override suspend fun updateData(value: ScorePreferencesModel?) =
         scoreDao.updateData(value)
-    }
 
-    override suspend fun getData(): ScorePreferencesModel? {
-        return scoreDao.getData()
-    }
+    override suspend fun getData(): ScorePreferencesModel? =
+        scoreDao.getData()
 
 }
