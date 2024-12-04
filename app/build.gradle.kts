@@ -60,7 +60,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    implementation(project(":2048"))
+//    implementation(project(":2048"))
+    implementation(project(":onboarding"))
 
     // Koin core features
     implementation("io.insert-koin:koin-core:3.5.0")

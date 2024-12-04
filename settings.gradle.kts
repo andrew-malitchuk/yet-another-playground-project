@@ -21,4 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "YAPP"
 include(":app")
-include(":2048")
+//include(":2048")
+include(":onboarding")
