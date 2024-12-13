@@ -30,38 +30,32 @@ fun ScreenshotBox(
     }
 
     DisposableEffect(Unit) {
-
-        screenshotState.callback = {
-            composableBounds?.let { bounds ->
-                if (bounds.width == 0f || bounds.height == 0f) return@let
-
-                view.screenshot(bounds) { imageResult: ImageResult ->
-                    screenshotState.imageState.value = imageResult
-
-                    if (imageResult is ImageResult.Success) {
-                        screenshotState.bitmapState.value = imageResult.data
+        with(screenshotState) {
+            callback = {
+                composableBounds?.let { bounds ->
+                    if (bounds.width == 0f || bounds.height == 0f) return@let
+                    view.screenshot(bounds) {
+                        bitmapState.value = it
                     }
                 }
             }
-        }
-
-        onDispose {
-            val bmp = screenshotState.bitmapState.value
-            bmp?.apply {
-                if (!isRecycled) {
-                    recycle()
+            onDispose {
+                val bmp = bitmapState.value?.getOrNull()
+                bmp?.apply {
+                    if (!isRecycled) {
+                        recycle()
+                    }
                 }
+                bitmapState.value = null
+                callback = null
             }
-            screenshotState.bitmapState.value = null
-            screenshotState.callback = null
         }
     }
 
     Box(modifier = modifier
         .onGloballyPositioned {
-            composableBounds =
-                it.boundsInWindow()
-        }
+            composableBounds = it.boundsInWindow()
+        },
     ) {
         content()
     }
