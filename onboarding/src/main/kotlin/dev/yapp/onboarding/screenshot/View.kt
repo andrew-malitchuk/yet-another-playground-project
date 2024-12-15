@@ -1,10 +1,8 @@
 package dev.yapp.onboarding.screenshot
+
 import android.app.Activity
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.os.Build
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import android.view.PixelCopy
 import android.view.View
@@ -12,8 +10,9 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toAndroidRect
 
 fun View.screenshot(
-    bounds: Rect
-): ImageResult {
+    bounds: Rect,
+    bitmapCallback: (Result<Bitmap>) -> Unit
+) {
 
     try {
 
@@ -23,65 +22,20 @@ fun View.screenshot(
             Bitmap.Config.ARGB_8888,
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-            // Above Android O not using PixelCopy throws exception
-            // https://stackoverflow.com/questions/58314397/java-lang-illegalstateexception-software-rendering-doesnt-support-hardware-bit
-            PixelCopy.request(
-                (this.context as Activity).window,
-                bounds.toAndroidRect(),
-                bitmap,
-                {},
-                Handler(Looper.getMainLooper())
-            )
-        } else {
-            val canvas = Canvas(bitmap)
-                .apply {
-                    translate(-bounds.left, -bounds.top)
-                }
-            this.draw(canvas)
-            canvas.setBitmap(null)
-        }
-        return ImageResult.Success(bitmap)
-    } catch (e: Exception) {
-        return ImageResult.Error(e)
-    }
-}
-
-fun View.screenshot(
-    bounds: Rect,
-    bitmapCallback: (ImageResult) -> Unit
-) {
-
-    try {
-
-        val bitmap = Bitmap.createBitmap(
-//            bounds.width.toInt(),
-//            bounds.height.toInt(),
-            bounds.right.toInt(),
-            bounds.bottom.toInt(),
-            Bitmap.Config.ARGB_8888,
-        )
-
         // Above Android O not using PixelCopy throws exception
         // https://stackoverflow.com/questions/58314397/java-lang-illegalstateexception-software-rendering-doesnt-support-hardware-bit
         PixelCopy.request(
             (this.context as Activity).window,
-            android.graphics.Rect(
-                0,
-                0,
-                bounds.right.toInt(),
-                bounds.bottom.toInt()
-            ),
+            bounds.toAndroidRect(),
             bitmap,
             {
                 when (it) {
-                    PixelCopy.SUCCESS -> {
-                        bitmapCallback.invoke(ImageResult.Success(bitmap))
-                    }
-                    PixelCopy.ERROR_DESTINATION_INVALID -> {
-                        bitmapCallback.invoke(
-                            ImageResult.Error(
+                    PixelCopy.SUCCESS ->
+                        bitmapCallback(Result.success(bitmap))
+
+                    PixelCopy.ERROR_DESTINATION_INVALID ->
+                        bitmapCallback(
+                            Result.failure(
                                 Exception(
                                     "The destination isn't a valid copy target. " +
                                             "If the destination is a bitmap this can occur " +
@@ -92,10 +46,10 @@ fun View.screenshot(
                                 )
                             )
                         )
-                    }
-                    PixelCopy.ERROR_SOURCE_INVALID -> {
-                        bitmapCallback.invoke(
-                            ImageResult.Error(
+
+                    PixelCopy.ERROR_SOURCE_INVALID ->
+                        bitmapCallback(
+                            Result.failure(
                                 Exception(
                                     "It is not possible to copy from the source. " +
                                             "This can happen if the source is " +
@@ -103,20 +57,20 @@ fun View.screenshot(
                                 )
                             )
                         )
-                    }
-                    PixelCopy.ERROR_TIMEOUT -> {
-                        bitmapCallback.invoke(
-                            ImageResult.Error(
+
+                    PixelCopy.ERROR_TIMEOUT ->
+                        bitmapCallback(
+                            Result.failure(
                                 Exception(
                                     "A timeout occurred while trying to acquire a buffer " +
                                             "from the source to copy from."
                                 )
                             )
                         )
-                    }
-                    PixelCopy.ERROR_SOURCE_NO_DATA -> {
-                        bitmapCallback.invoke(
-                            ImageResult.Error(
+
+                    PixelCopy.ERROR_SOURCE_NO_DATA ->
+                        bitmapCallback(
+                            Result.failure(
                                 Exception(
                                     "The source has nothing to copy from. " +
                                             "When the source is a Surface this means that " +
@@ -126,22 +80,22 @@ fun View.screenshot(
                                 )
                             )
                         )
-                    }
-                    else -> {
-                        bitmapCallback.invoke(
-                            ImageResult.Error(
+
+                    else ->
+                        bitmapCallback(
+                            Result.failure(
                                 Exception(
                                     "The pixel copy request failed with an unknown error."
                                 )
                             )
                         )
-                    }
                 }
+
 
             },
             Handler(Looper.getMainLooper())
         )
     } catch (e: Exception) {
-        bitmapCallback.invoke(ImageResult.Error(e))
+        bitmapCallback(Result.failure(e))
     }
 }
